@@ -19,6 +19,7 @@ projects/<slug>/ship.txt    the ship — one-line data URL, copy-paste ready
 projects/<slug>/meta.json   title/description/badges for gallery
 projects/<slug>/preview.svg thumbnail for gallery (docs only, never in ship)
 docs/                       GitHub Pages gallery (index.html + projects.json)
+docs/p/<slug>/               generated mirror of ship/src/preview for Pages (do not edit, from build.py)
 build.py                    minifies every src.html -> ship.txt, checks limits, regenerates docs/projects.json
 ```
 
