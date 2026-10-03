@@ -2,6 +2,7 @@
 site/
 # playwright-cli junk (snapshots, screenshots, traces)
 .playwright-cli/
+shot.yml
 # node / python noise
 node_modules/
 __pycache__/
