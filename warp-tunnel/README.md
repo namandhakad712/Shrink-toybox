@@ -9,6 +9,6 @@ Steer a hyperspace tunnel with your mouse. Hold to boost — the engine hum rise
 - `dist/uri.txt` — the ship. One line `data:text/html` URI (1417 / 3072 bytes). Copy all, paste in new tab address bar, Enter.
 - `dist/index.html` — minified page, same thing without the data URI wrapper.
 - `meta.json` — title/description/badges for the toybox gallery.
-- `preview.svg` — gallery thumbnail (docs only, never in ship).
+- `preview.png` — real screenshot for the gallery (never inside the ship).
 
 Badges: canvas, web audio, interactive, 3D (perspective projection on canvas).

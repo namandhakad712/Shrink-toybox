@@ -1,0 +1,66 @@
+<body style=margin:0;overflow:hidden;background:#0d0f1e>
+<div id=garden></div>
+<div id=hint>move to morph - click to pluck</div>
+<style>
+html,body{height:100%}
+body{margin:0;background:#0d0f1e;overflow:hidden}
+#garden{position:fixed;inset:0;display:grid;place-items:center;touch-action:none}
+#hint{position:fixed;bottom:14px;width:100%;text-align:center;color:#8f8ab8;font:13px monospace}
+.petal{position:absolute;width:110px;height:110px;border-radius:50%;mix-blend-mode:screen;
+background:radial-gradient(circle at 50% 0%,#0a1030,#3a2a8f,#7aa2ff);
+--ang:90deg;--pos:150px;--big:1;
+transform:translate(calc(cos(var(--ang))*var(--pos)),calc(sin(var(--ang))*var(--pos)*-1)) scale(var(--big));
+animation:breathe 4s ease-in-out infinite alternate}
+@keyframes breathe{from{--pos:150px;--big:1}to{--pos:100px;--big:2.6}}
+@property --pos{syntax:"<length>";initial-value:150px;inherits:true}
+@property --big{syntax:"<number>";initial-value:1;inherits:true}
+</style>
+<script>
+let garden = document.getElementById('garden')
+let notes = [523, 587, 659, 784, 880, 1047]
+let n = 0
+let sound = null
+
+for (let i = 0; i < 6; i++) {
+  let p = document.createElement('div')
+  p.className = 'petal'
+  p.style.setProperty('--ang', (i * 60 + 30) + 'deg')
+  garden.appendChild(p)
+}
+let petals = garden.children
+
+function morph(x, y) {
+  for (let p of petals) {
+    p.style.animation = 'none'
+    p.style.setProperty('--pos', (x * 500) + 'px')
+    p.style.setProperty('--big', (y * 10).toFixed(2))
+  }
+}
+
+function unmorph() {
+  for (let p of petals) {
+    p.style.animation = ''
+    p.style.removeProperty('--pos')
+    p.style.removeProperty('--big')
+  }
+}
+
+onpointermove = e => morph(e.clientX / innerWidth, e.clientY / innerHeight)
+document.body.onmouseleave = unmorph
+
+onpointerdown = e => {
+  if (!sound) sound = new AudioContext()
+  morph(e.clientX / innerWidth, e.clientY / innerHeight)
+  let o = sound.createOscillator()
+  let g = sound.createGain()
+  let t = sound.currentTime
+  o.type = 'triangle'
+  o.frequency.value = notes[n++ % notes.length]
+  o.connect(g)
+  g.connect(sound.destination)
+  g.gain.setValueAtTime(.2, t)
+  g.gain.exponentialRampToValueAtTime(.001, t + .9)
+  o.start(t)
+  o.stop(t + 1)
+}
+</script>
