@@ -1,1 +1,1 @@
-{"description": "shrink-toybox: one-line data-url toys for shrink.hackclub.com", "devDependencies": {"terser": "^5.44.0"}, "name": "shrink-toybox", "private": true, "version": "1.0.0", "workspaces": ["gravity-well", "warp-tunnel"]}
+{"description": "shrink-toybox: one-line data-url toys for shrink.hackclub.com", "devDependencies": {"terser": "^5.44.0"}, "name": "shrink-toybox", "private": true, "version": "1.0.0", "workspaces": ["gravity-well", "warp-tunnel", "bloom"]}
