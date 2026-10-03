@@ -3,6 +3,8 @@ site/
 # playwright-cli junk (snapshots, screenshots, traces)
 .playwright-cli/
 shot.yml
+go.yml
+/*/package-lock.json
 # node / python noise
 node_modules/
 __pycache__/
