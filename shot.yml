@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]: hack club shrink · teen-made
+    - heading "shrink-toybox" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Every toy below is a whole game in ONE link — smaller than this sentence's worth of data budget (3072 bytes), made with zero libraries. Pick a toy, copy it, play it anywhere.
+    - generic [ref=e6]:
+      - generic [ref=e7]: 🧸 100% teen-made
+      - generic [ref=e8]: ⚡ ≤ 3072 bytes each
+      - generic [ref=e9]: 🚫 no libs · no internet
+      - generic [ref=e10]: 🔊 sound + 🎮 input + 🖼️ canvas
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]: "1"
+      - heading "Copy the green box" [level=3] [ref=e14]
+      - paragraph [ref=e15]: Every toy card has its magic link in a green box. Hit Copy — or click the box to select it all.
+    - generic [ref=e16]:
+      - generic [ref=e17]: "2"
+      - heading "Open a fresh tab" [level=3] [ref=e18]
+      - paragraph [ref=e19]:
+        - text: Click the
+        - code [ref=e20]: +
+        - text: for a new tab. Yes — the link goes where the website address goes. Wild, we know.
+    - generic [ref=e21]:
+      - generic [ref=e22]: "3"
+      - heading "Paste & play" [level=3] [ref=e23]
+      - paragraph [ref=e24]:
+        - code [ref=e25]: ctrl + V
+        - text: ", then"
+        - code [ref=e26]: enter
+        - text: . The game just… appears. No download, no install. 🤯
+  - generic [ref=e27]: 🧸 COPY · ✨ PASTE · 🎮 PLAY · 🧸 COPY · ✨ PASTE · 🎮 PLAY · 🧸 COPY · ✨ PASTE · 🎮 PLAY · 🧸 COPY · ✨ PASTE · 🎮 PLAY ·
+  - generic [ref=e29]:
+    - generic [ref=e32]:
+      - generic [ref=e33] [cursor=pointer]:
+        - img "Gravity Well" [ref=e34]
+        - generic: ▶ try me
+      - generic [ref=e35]:
+        - heading "🧸 Gravity Well" [level=2] [ref=e36]
+        - generic [ref=e39]: 1627 / 3072 bytes (53% full)
+        - paragraph [ref=e40]: Hold to spray stars into a black hole. Each bite flashes the ring and drops a synth blip.
+        - generic [ref=e41]:
+          - generic [ref=e42]: ⚡ canvas
+          - generic [ref=e43]: ⚡ audio
+          - generic [ref=e44]: ⚡ interactive
+        - textbox [ref=e45]: "data:text/html,<body style=margin:0;overflow:hidden;background:%23000><canvas id=c></canvas><span id=o style=position:fixed;top:10px;left:12px;color:%23fff;font:12px monospace;opacity:.7>hold to feed stars - mass <b id=m>0</b></span><script>function e(e,t){o=A.createOscillator(),g=A.createGain(),n=A.currentTime,o.connect(g).connect(A.destination),o.frequency.setValueAtTime(e,n),o.frequency.exponentialRampToValueAtTime(t,n+.25),g.gain.setValueAtTime(.15,n),g.gain.exponentialRampToValueAtTime(.001,n+.25),o.start(n),o.stop(n+.26)}X=c.getContext(\"2d\"),W=c.width=innerWidth,H=c.height=innerHeight,BX=W/2,BY=H/2,S=[],M=0,F=0,t=0,mx=W/2,my=0,D=0,A=0,onresize=()=>{W=c.width=innerWidth,H=c.height=innerHeight,BX=W/2,BY=H/2},onpointermove=e=>{mx=e.clientX,my=e.clientY},onpointerdown=e=>{mx=e.clientX,my=e.clientY,D=1,A||(A=new AudioContext)},onpointerup=()=>D=0,function n(){for(t++,X.fillStyle=\"rgba(0,0,0,.28)\",X.fillRect(0,0,W,H),k=D?3:1;k--;)S.push([D?mx:Math.random()*W,D?my:0,4*(Math.random()-.5),2*Math.random()]);for(F*=.94,X.fillStyle=\"hsl(\"+2*t%25360+\",100%25,60%25)\",X.beginPath(),X.arc(BX,BY,26+22*F,0,7),X.fill(),i=S.length;i--;)s=S[i],dx=BX-s[0],dy=BY-s[1],d=Math.hypot(dx,dy)+1,p=2600/(d*d+400),s[2]+=dx/d*p,s[3]+=dy/d*p,s[2]*=.985,s[3]*=.985,s[0]+=s[2],s[1]+=s[3],d<16?(S.splice(i,1),M++,F=1,m.textContent=M,A&&e(700+300*Math.random(),50)):s[0]<-50||s[0]>W+50||s[1]<-50||s[1]>H+50?S.splice(i,1):(X.fillStyle=\"%23fff\",X.fillRect(s[0],s[1],2,2));X.fillStyle=\"%23000\",X.beginPath(),X.arc(BX,BY,18,0,7),X.fill(),X.strokeStyle=\"%23fff\",X.beginPath(),X.arc(BX,BY,18,0,7),X.stroke(),requestAnimationFrame(n)}();</script>"
+        - generic [ref=e46]:
+          - button "📋 Copy link" [ref=e47] [cursor=pointer]
+          - button "▶ Live demo" [ref=e48] [cursor=pointer]
+          - button "↗ Open toy" [ref=e49] [cursor=pointer]
+        - group [ref=e50]:
+          - generic "👀 peek at the code" [ref=e51] [cursor=pointer]
+    - generic [ref=e52]:
+      - generic [ref=e53] [cursor=pointer]:
+        - img "Warp Tunnel" [ref=e54]
+        - generic: ▶ try me
+      - generic [ref=e55]:
+        - heading "🧸 Warp Tunnel" [level=2] [ref=e56]
+        - generic [ref=e59]: 1417 / 3072 bytes (46% full)
+        - paragraph [ref=e60]: Steer a hyperspace tunnel. Hold to boost, engine hum rises with speed.
+        - generic [ref=e61]:
+          - generic [ref=e62]: ⚡ canvas
+          - generic [ref=e63]: ⚡ audio
+          - generic [ref=e64]: ⚡ interactive
+          - generic [ref=e65]: ⚡ 3d
+        - textbox [ref=e66]: "data:text/html,<body style=margin:0;overflow:hidden;background:%23000><canvas id=c></canvas><span id=o style=position:fixed;top:10px;left:12px;color:%23fff;font:12px monospace;opacity:.7>steer with mouse - hold = boost - <b id=m>0</b> ly</span><script>for(X=c.getContext(\"2d\"),W=c.width=innerWidth,H=c.height=innerHeight,N=30,K=10,G=[],i=0;i<30;i++)G.push([i/30,6.28*Math.random()]);function e(e,i,n,o){a=e+6.283*i/10+.02*t,s=1/(n+.15),o[0]=W/2+(220*Math.cos(a)-300*px*n)*s,o[1]=H/2+(220*Math.sin(a)-300*py*n)*s}px=0,py=0,D=0,v=0,M=0,t=0,A=0,o=0,onresize=()=>{W=c.width=innerWidth,H=c.height=innerHeight},onpointermove=t=>{px=t.clientX/W-.5,py=t.clientY/H-.5},onpointerdown=()=>{D=1,A||(A=new AudioContext,o=A.createOscillator(),g=A.createGain(),o.type=\"sawtooth\",o.frequency.value=60,g.gain.value=.04,o.connect(g).connect(A.destination),o.start())},onpointerup=()=>D=0,u=[0,0],q=[0,0],function n(){for(t++,v+=.05*((D?.05:.012)-v),M+=10*v,m.textContent=0|M,o&&o.frequency.setTargetAtTime(50+4e3*v,A.currentTime,.05),X.fillStyle=\"rgba(0,0,10,.35)\",X.fillRect(0,0,W,H),i=0;i<30;i++)for(r=G[i],r[0]-=v,r[0]<=0&&(r[0]+=1,r[1]=6.28*Math.random()),c=\"hsl(\"+(3*t+9*i)%25360+\",100%25,60%25)\",X.strokeStyle=c,k=0;k<10;k++)e(r[1],k,r[0],u),j=(i+1)%2530,e(G[j][1],k,G[j][0],q),X.beginPath(),X.moveTo(u[0],u[1]),X.lineTo(q[0],q[1]),X.stroke();X.fillStyle=\"%23fff\",X.fillRect(W/2-2,H/2-2,4,4),requestAnimationFrame(n)}();</script>"
+        - generic [ref=e67]:
+          - button "📋 Copy link" [ref=e68] [cursor=pointer]
+          - button "▶ Live demo" [ref=e69] [cursor=pointer]
+          - button "↗ Open toy" [ref=e70] [cursor=pointer]
+        - group [ref=e71]:
+          - generic "👀 peek at the code" [ref=e72] [cursor=pointer]
+  - contentinfo [ref=e30]:
+    - text: made with <3 by teens · every toy fits in a single
+    - code [ref=e31]: data:text/html
+    - text: link · 2 toys and counting 🧸

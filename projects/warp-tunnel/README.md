@@ -2,20 +2,13 @@
 
 Steer a hyperspace tunnel with your mouse. Hold to boost — the engine hum rises with speed and the rings fly faster. Distance counter tracks light-years.
 
-## files (ready to copy)
+## files
 
-- `ship.txt` — the ship. One line `data:text/html` URI. Copy all, paste in new tab address bar, Enter.
-- `src.html` — readable source. Edit here, then rebuild.
-- `meta.json` — title/description/badges for the gallery.
-- `preview.svg` — gallery thumbnail (docs only, not part of the ship).
+- `src/index.html` — readable source. Edit this, keep it human-friendly.
+- `build.mjs` + `package.json` — official SHRINK build (terser). Run `npm install` once at repo root, then `node build.mjs` here.
+- `dist/uri.txt` — the ship. One line `data:text/html` URI (1417 / 3072 bytes). Copy all, paste in new tab address bar, Enter.
+- `dist/index.html` — minified page, same thing without the data URI wrapper.
+- `meta.json` — title/description/badges for the toybox gallery.
+- `preview.svg` — gallery thumbnail (docs only, never in ship).
 
-## rebuild
-
-```sh
-python ../../build.py
-# or: python ../../build.py warp-tunnel
-```
-
-Checks: one line, ≤3072 bytes, no network (`http|src=|href|fetch|url(` etc).
-
-Badges aimed: `<canvas>`, web audio, interactive, 3D (perspective projection).
+Badges: canvas, web audio, interactive, 3D (perspective projection on canvas).

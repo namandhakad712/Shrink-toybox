@@ -1,0 +1,1 @@
+{"description": "Gravity Well — SHRINK toy for shrink.hackclub.com", "devDependencies": {"terser": "^5.44.0"}, "name": "gravity-well", "private": true, "scripts": {"build": "node build.mjs"}, "version": "1.0.0"}

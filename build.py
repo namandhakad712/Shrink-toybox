@@ -1,63 +1,64 @@
-"""Build all ships: projects/<slug>/src.html -> projects/<slug>/ship.txt.
+"""Verify ships + assemble the Pages site (gitignored) from docs/ template.
 
-Also assembles a deployable Pages site (gitignored) from the docs/ template
-plus live content from projects/ — no duplicated files committed to docs/.
+Official per-toy build is `node build.mjs` inside each projects/<slug>/
+(src/index.html -> dist/uri.txt, committed). This script only verifies and
+assembles — it never minifies, so what reviewers read is what ships.
 
 Usage:
-  python build.py                build ships + assemble ./site/
-  python build.py gravity-well   build one ship (+ site)
+  python build.py                verify all + assemble ./site/
+  python build.py gravity-well   verify one toy (+ site)
   python build.py --site out     assemble site into ./out/
 """
 import json, re, shutil, sys
 from pathlib import Path
+from urllib.parse import unquote
 
 ROOT = Path(__file__).parent
 MAX = 3072
 BAD = ["http", "src=", "href", "fetch(", "XMLHttpRequest", "import(", "@import", "url("]
 
-def shrink(src_html: str) -> str:
-    # Split HTML shell vs JS: newlines separate statements inside <script>,
-    # so JS lines must be re-joined with ';' (ASI would break on spaces).
-    # Rule for src.html: one statement per line inside <script>.
-    m = re.search(r"<script>(.*)</script>", src_html, re.S)
-    js = m.group(1) if m else ""
-    js_lines = []
-    for ln in js.splitlines():
-        s = ln.strip()
-        if not s or s.startswith("//"):
-            continue
-        if " // " in s and "://" not in s:
-            s = s.split(" // ")[0].rstrip()
-        js_lines.append(s)
-    js_one = ";".join(js_lines)
-    html_lines = []
-    for ln in (src_html[:m.start()] if m else src_html).splitlines():
-        s = ln.strip()
-        if s:
-            html_lines.append(s)
-    tail = (src_html[m.end():] if m else "").strip()
-    one = re.sub(r"\s+", " ", " ".join(html_lines)).strip()
-    one += " <script>" + js_one + "</script>" + (" " + tail if tail else "")
-    one = re.sub(r"\s+", " ", one).strip()
-    enc = one.replace("%", "%25").replace("#", "%23").replace(" ", "%20")
-    return "data:text/html," + enc, one
-
-def js_syntax_ok(js: str) -> bool:
+def js_syntax_ok(js: str, label: str) -> bool:
     import subprocess, tempfile, os
     node = shutil.which("node")
     if not node:
-        return True  # can't verify here; CI/browser will
+        print(f"{label}: node missing, syntax check skipped")
+        return True
     with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as f:
         f.write(js)
         path = f.name
     r = subprocess.run([node, "--check", path], capture_output=True, text=True)
     os.unlink(path)
     if r.returncode != 0:
-        print("JS SYNTAX ERROR:\n" + r.stderr[:1500])
+        print(f"{label}: JS SYNTAX ERROR:\n" + r.stderr[:1500])
         return False
     return True
 
-def build_site(projs, dest: Path):
+def verify(d: Path) -> str | None:
+    """Returns data URL if the toy passes all checks, else None."""
+    src = d / "src" / "index.html"
+    uri_f = d / "dist" / "uri.txt"
+    if not src.exists():
+        print(f"SKIP {d.name}: no src/index.html"); return None
+    if not uri_f.exists():
+        print(f"FAIL {d.name}: no dist/uri.txt — run `node build.mjs` in projects/{d.name}"); return None
+    if src.stat().st_mtime > uri_f.stat().st_mtime:
+        print(f"FAIL {d.name}: dist/uri.txt older than src — rerun `node build.mjs`"); return None
+    uri = uri_f.read_text(encoding="utf-8").strip()
+    nbytes = len(uri.encode("utf-8"))
+    html = unquote(uri.split(",", 1)[1]) if uri.startswith("data:text/html,") else ""
+    found = [b for b in BAD if b in html]
+    mjs = re.search(r"<script>(.*)</script>", html, re.S)
+    ok = (
+        uri.startswith("data:text/html,")
+        and nbytes <= MAX
+        and "\n" not in uri
+        and not found
+        and js_syntax_ok(mjs.group(1) if mjs else "", d.name)
+    )
+    print(f"{d.name}: {nbytes}/{MAX} {'OK' if ok else 'FAIL'} banned={found or 'none'}")
+    return uri if ok else None
+
+def build_site(good: dict, dest: Path):
     """Assemble deployable site from docs/ template + live projects/ content."""
     if dest.exists():
         shutil.rmtree(dest)
@@ -67,32 +68,28 @@ def build_site(projs, dest: Path):
         if src.exists():
             shutil.copy(src, dest / f)
     entries = []
-    for d in projs:
-        src = d / "src.html"
-        ship = d / "ship.txt"
-        if not src.exists() or not ship.exists():
-            continue
+    for slug, uri in good.items():
+        d = ROOT / "projects" / slug
         meta = {}
         mf = d / "meta.json"
         if mf.exists():
             meta = json.loads(mf.read_text(encoding="utf-8"))
-        uri = ship.read_text(encoding="utf-8")
         preview = None
         for cand in ("preview.svg", "preview.png", "preview.jpg"):
             if (d / cand).exists():
-                (dest / "p" / d.name).mkdir(parents=True, exist_ok=True)
-                shutil.copy(d / cand, dest / "p" / d.name / cand)
-                preview = f"p/{d.name}/{cand}"
+                (dest / "p" / slug).mkdir(parents=True, exist_ok=True)
+                shutil.copy(d / cand, dest / "p" / slug / cand)
+                preview = f"p/{slug}/{cand}"
                 break
         entries.append({
-            "slug": d.name,
-            "title": meta.get("title", d.name),
+            "slug": slug,
+            "title": meta.get("title", slug),
             "description": meta.get("description", ""),
             "badges": meta.get("badges", []),
-            "bytes": len(uri),
-            "percent": round(len(uri) / MAX * 100),
+            "bytes": len(uri.encode("utf-8")),
+            "percent": round(len(uri.encode("utf-8")) / MAX * 100),
             "dataUrl": uri,
-            "sourceHtml": src.read_text(encoding="utf-8"),
+            "sourceHtml": (d / "src" / "index.html").read_text(encoding="utf-8"),
             "preview": preview,
         })
     (dest / "projects.json").write_text(json.dumps(entries, indent=1), encoding="utf-8")
@@ -110,26 +107,15 @@ def main(args):
             slugs.append(args[i])
             i += 1
     slugs = [s for s in slugs if (ROOT / "projects" / s).is_dir()]
-    projs = sorted([d for d in (ROOT / "projects").iterdir() if d.is_dir()]) if (ROOT / "projects").exists() else []
-    if slugs:
-        projs = [ROOT / "projects" / s for s in slugs]
-    fail = False
-    for d in projs:
-        src = d / "src.html"
-        if not src.exists():
-            print(f"SKIP {d.name}: no src.html"); continue
-        uri, one = shrink(src.read_text(encoding="utf-8"))
-        (d / "ship.txt").write_text(uri, encoding="utf-8")
-        found = [b for b in BAD if b in one]
-        mjs = re.search(r"<script>(.*)</script>", one)
-        syntax = js_syntax_ok(mjs.group(1) if mjs else "")
-        ok = len(uri) <= MAX and "\n" not in uri and not found and syntax
-        print(f"{d.name}: raw={len(one)} ship={len(uri)}/{MAX} {'OK' if ok else 'FAIL'} banned={found or 'none'}")
-        if not ok:
-            fail = True
-    built = [d for d in (sorted([x for x in (ROOT / 'projects').iterdir() if x.is_dir()])) if (d / "ship.txt").exists()] if (ROOT / "projects").exists() else []
-    build_site(built, ROOT / site)
-    sys.exit(1 if fail else 0)
+    all_dirs = sorted([d for d in (ROOT / "projects").iterdir() if d.is_dir()]) if (ROOT / "projects").exists() else []
+    projs = [ROOT / "projects" / s for s in slugs] if slugs else all_dirs
+    checked = {}
+    for d in all_dirs:
+        uri = verify(d)
+        if uri:
+            checked[d.name] = uri
+    build_site(checked, ROOT / site)
+    sys.exit(0 if all(n in checked for n in [d.name for d in projs]) and projs else 1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -2,60 +2,157 @@
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <link rel=icon href=data:,>
-<title>🧸 shrink-toybox</title>
+<title>shrink-toybox — tiny games, one link each</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b0b12;color:#eee;font:15px/1.5 system-ui,sans-serif}
-header{padding:28px 20px;text-align:center}header h1{margin:0;font-size:28px}header p{opacity:.7;max-width:640px;margin:8px auto}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px;max-width:1100px;margin:auto}
-.card{background:#151522;border:1px solid #2a2a40;border-radius:12px;overflow:hidden}
-.card img{width:100%;height:170px;object-fit:cover;display:block;cursor:pointer;background:#000}
-.card .b{padding:12px 14px}.card h2{margin:0 0 4px;font-size:18px}.card p{margin:6px 0;opacity:.8;font-size:14px}
-.bar{height:8px;background:#2a2a40;border-radius:4px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:#7c5cff}
-.meta{font-size:12px;opacity:.7}.tags{font-size:12px;opacity:.7;margin:4px 0}
+:root{
+  --bg:#0d0b1e; --ink:#f4f1ff; --dim:#a9a3d4;
+  --card:#171433; --line:#2c2763;
+  --purple:#7c5cff; --cyan:#3ff2ff; --pink:#ff6ad5; --lime:#b8f53d; --sun:#ffd166;
+  --r:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink);
+  font:16px/1.55 system-ui,"Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(1.5px 1.5px at 12% 22%, #fff8, transparent 60%),
+    radial-gradient(1px 1px at 68% 8%, #fff7, transparent 60%),
+    radial-gradient(2px 2px at 84% 34%, #fff6, transparent 60%),
+    radial-gradient(1.5px 1.5px at 32% 66%, #fff5, transparent 60%),
+    radial-gradient(1px 1px at 52% 88%, #fff6, transparent 60%),
+    radial-gradient(2px 2px at 8% 78%, #fff5, transparent 60%),
+    radial-gradient(1200px 600px at 50% -10%, #2b1f6e, transparent 70%),
+    var(--bg);
+}
+::selection{background:var(--pink);color:#000}
+.wrap{max-width:1120px;margin:auto;padding:0 20px}
+/* ---------- hero ---------- */
+.hero{text-align:center;padding:64px 20px 10px;position:relative}
+.kicker{display:inline-block;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:#000;background:var(--lime);border-radius:999px;padding:6px 16px;transform:rotate(-3deg);
+  box-shadow:3px 3px 0 #000}
+.hero h1{font-size:clamp(44px,8vw,84px);line-height:1.02;margin:18px 0 6px;font-weight:900;letter-spacing:-1px}
+.hero h1 .w1{color:var(--cyan)} .hero h1 .w2{color:var(--pink)}
+.hero p.sub{color:var(--dim);max-width:620px;margin:0 auto;font-size:17px}
+.hero p.sub b{color:var(--ink)}
+.stickers{display:flex;gap:14px;justify-content:center;margin:26px 0 6px;flex-wrap:wrap}
+.stick{font-size:15px;font-weight:800;background:var(--card);border:2px solid var(--line);
+  border-radius:999px;padding:8px 16px;box-shadow:4px 4px 0 #000;animation:float 4s ease-in-out infinite}
+.stick:nth-child(2n){animation-delay:-1.3s;transform:rotate(2deg)}
+.stick:nth-child(3n){animation-delay:-2.6s}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -7px}}
+/* ---------- noob steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:30px auto 8px;max-width:1120px;padding:0 20px}
+.step{background:var(--card);border:2px solid var(--line);border-radius:var(--r);padding:16px 18px;
+  box-shadow:5px 5px 0 #000;position:relative}
+.step .n{position:absolute;top:-16px;left:14px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-weight:900;color:#000;box-shadow:3px 3px 0 #000}
+.step:nth-child(1) .n{background:var(--cyan)} .step:nth-child(2) .n{background:var(--sun)} .step:nth-child(3) .n{background:var(--pink)}
+.step h3{margin:6px 0 4px;font-size:16px}
+.step p{margin:0;color:var(--dim);font-size:14px}
+.step code{background:#0b0b12;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:12.5px;color:var(--lime)}
+/* ---------- marquee ---------- */
+.marquee{overflow:hidden;white-space:nowrap;border-block:2px solid var(--line);margin:26px 0 0;
+  background:linear-gradient(90deg,var(--purple),#a855f7)}
+.marquee span{display:inline-block;padding:9px 0;font-weight:900;letter-spacing:2px;font-size:13px;color:#fff;
+  animation:slide 18s linear infinite}
+@keyframes slide{to{transform:translateX(-50%)}}
+/* ---------- cards ---------- */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;padding:28px 20px 60px;max-width:1120px;margin:auto}
+.card{background:var(--card);border:2px solid var(--line);border-radius:22px;overflow:hidden;
+  box-shadow:7px 7px 0 #000;transition:transform .18s ease}
+.card:hover{transform:translateY(-4px) rotate(-.4deg)}
+.shot{position:relative;background:#000;cursor:pointer}
+.shot img{width:100%;height:180px;object-fit:cover;display:block}
+.shot .play{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .18s;pointer-events:none;
+  background:#0d0b1ecc;font-weight:900;font-size:17px;letter-spacing:1px}
+.shot:hover .play{opacity:1}
+.card .b{padding:16px 18px 18px}
+.card h2{margin:0;font-size:21px;font-weight:900}
+.bytebar{height:10px;background:#0b0b12;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:10px 0 4px}
+.bytebar i{display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));background-size:200% 100%;
+  animation:shimmer 3s linear infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+.meta{font-size:12.5px;color:var(--dim);font-weight:700}
+.desc{margin:8px 0 0;color:#d9d4f5;font-size:14.5px}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pill{font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:999px;padding:3px 11px;
+  background:#0b0b12;border:1.5px solid var(--purple);color:#cfc2ff}
+textarea.url{width:100%;height:56px;background:#0b0b12;color:var(--lime);border:1.5px dashed var(--line);
+  border-radius:12px;font:11px/1.5 ui-monospace,monospace;margin-top:12px;padding:8px;resize:vertical}
+textarea.url:focus{outline:2px solid var(--purple)}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-button{background:#7c5cff;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px}
-button.ghost{background:#2a2a40}
-textarea.url{width:100%;height:54px;background:#0b0b12;color:#9f9;border:1px solid #2a2a40;border-radius:8px;font:11px/1.4 monospace;margin-top:8px;resize:vertical}
-details.src{margin-top:8px}details.src summary{cursor:pointer;font-size:13px;opacity:.8}details.src pre{background:#0b0b12;border:1px solid #2a2a40;border-radius:8px;padding:8px;font-size:11px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:20px}
-#modal.open{display:flex}#box{background:#000;border:1px solid #444;border-radius:12px;width:min(900px,100%);overflow:hidden}
-#box iframe{width:100%;height:60vh;border:0;background:#000}
-#box div{display:flex;gap:8px;padding:10px;background:#151522;flex-wrap:wrap;align-items:center}
-#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222;border:1px solid #555;padding:8px 14px;border-radius:8px;display:none}
+button{border:0;border-radius:12px;padding:10px 16px;cursor:pointer;font-size:14px;font-weight:900;color:#000;
+  background:var(--lime);box-shadow:3px 3px 0 #000;transition:transform .12s}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+button.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:3px 3px 0 #000}
+details.src{margin-top:10px}details.src summary{cursor:pointer;font-size:13.5px;font-weight:800;color:var(--cyan)}
+details.src pre{background:#0b0b12;border:1.5px solid var(--line);border-radius:12px;padding:10px;font-size:11px;
+  max-height:230px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:#d9d4f5}
+/* ---------- modal + toast + footer ---------- */
+#modal{position:fixed;inset:0;background:#060514e6;display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+#modal.open{display:flex}
+#box{background:#000;border:2px solid var(--line);border-radius:20px;width:min(920px,100%);overflow:hidden;box-shadow:8px 8px 0 #000}
+#box iframe{width:100%;height:62vh;border:0;background:#000;display:block}
+#box div.bar{display:flex;gap:8px;padding:12px;background:var(--card);flex-wrap:wrap;align-items:center}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--lime);color:#000;font-weight:900;
+  padding:10px 20px;border-radius:999px;display:none;box-shadow:4px 4px 0 #000;z-index:99}
+footer{text-align:center;color:var(--dim);font-size:13px;padding:0 20px 46px}
+footer b{color:var(--pink)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<header>
-<h1>🧸 shrink-toybox</h1>
-<p>Every toy is one <code>data:text/html</code> line, ≤3072 bytes, no libs. Click a picture for a live peek 👀, then copy the data URL and paste it in a new tab! 🎉</p>
+<header class=hero>
+  <span class=kicker>hack club shrink · teen-made</span>
+  <h1><span class=w1>shrink</span>-<span class=w2>toybox</span></h1>
+  <p class=sub>Every toy below is a <b>whole game in ONE link</b> — smaller than this sentence's worth of data budget (<b>3072 bytes</b>), made with zero libraries. Pick a toy, copy it, play it anywhere.</p>
+  <div class=stickers>
+    <span class=stick>🧸 100% teen-made</span>
+    <span class=stick>⚡ ≤ 3072 bytes each</span>
+    <span class=stick>🚫 no libs · no internet</span>
+    <span class=stick>🔊 sound + 🎮 input + 🖼️ canvas</span>
+  </div>
 </header>
+<div class=steps>
+  <div class=step><span class=n>1</span><h3>Copy the green box</h3><p>Every toy card has its magic link in a <b>green box</b>. Hit <b>Copy</b> — or click the box to select it all.</p></div>
+  <div class=step><span class=n>2</span><h3>Open a fresh tab</h3><p>Click the <code>+</code> for a new tab. Yes — the link goes <b>where the website address goes</b>. Wild, we know.</p></div>
+  <div class=step><span class=n>3</span><h3>Paste &amp; play</h3><p><code>ctrl + V</code>, then <code>enter</code>. The game just… appears. No download, no install. 🤯</p></div>
+</div>
+<div class=marquee><span>🧸 COPY · ✨ PASTE · 🎮 PLAY · 🧸 COPY · ✨ PASTE · 🎮 PLAY · 🧸 COPY · ✨ PASTE · 🎮 PLAY · 🧸 COPY · ✨ PASTE · 🎮 PLAY ·&nbsp;</span></div>
 <div id=grid></div>
-<div id=modal><div id=box><iframe id=frame title="demo"></iframe><div><span id=mtitle style=flex:1></span><button id=mcopy>Copy data URL</button><button id=mclose class=ghost>Close</button></div></div></div>
+<div id=modal><div id=box><iframe id=frame title="demo"></iframe><div class=bar><span id=mtitle style=flex:1;font-weight:800></span><button id=mcopy>Copy link</button><button id=mclose class=ghost>Close</button></div></div></div>
 <div id=toast></div>
+<footer>made with <b>&lt;3</b> by teens · every toy fits in a single <code>data:text/html</code> link · <span id=count></span> toys and counting 🧸</footer>
 <script>
 const grid=document.getElementById('grid'),toast=document.getElementById('toast'),
 modal=document.getElementById('modal'),frame=document.getElementById('frame'),
-mtitle=document.getElementById('mtitle');let cur=null;
-function say(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',1800)}
-async function copyText(t,msg){let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{ok=document.execCommand('copy')}catch(_){}a.remove()}say(ok?msg:'copy failed — select the box manually')}
+mtitle=document.getElementById('mtitle');let cur=null,toastT=0;
+function say(s){toast.textContent=s;toast.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>toast.style.display='none',2000)}
+async function copyText(t,msg){let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{ok=document.execCommand('copy')}catch(_){}a.remove()}say(ok?msg:'copy failed — select the green box manually')}
 fetch('projects.json').then(r=>r.json()).then(ps=>{
+document.getElementById('count').textContent=ps.length;
 grid.innerHTML='';
 ps.forEach(p=>{
 const d=document.createElement('div');d.className='card';
-d.innerHTML=`<img loading=lazy><div class=b><h2></h2><div class=meta></div><div class=bar><i></i></div><p></p><div class=tags></div><textarea class=url readonly></textarea><div class=row></div><details class=src><summary>View source</summary><pre></pre></details></div>`;
+d.innerHTML=`<div class=shot><img loading=lazy><div class=play>▶ &nbsp;try me</div></div><div class=b><h2></h2><div class=bytebar><i></i></div><div class=meta></div><p class=desc></p><div class=pills></div><textarea class=url readonly spellcheck=false></textarea><div class=row></div><details class=src><summary>👀 peek at the code</summary><pre></pre></details></div>`;
 d.querySelector('img').src=p.preview;d.querySelector('img').alt=p.title;
-d.querySelector('h2').textContent=p.title;
-d.querySelector('.meta').textContent=`${p.bytes} / 3072 bytes (${p.percent}%)`;
-d.querySelector('.bar i').style.width=p.percent+'%';d.querySelector('p').textContent=p.description;
-d.querySelector('.tags').textContent=(p.badges||[]).join(' · ');
+d.querySelector('h2').textContent='🧸 '+p.title;
+d.querySelector('.bytebar i').style.width=p.percent+'%';
+d.querySelector('.meta').textContent=`${p.bytes} / 3072 bytes (${p.percent}% full)`;
+d.querySelector('.desc').textContent=p.description;
+const pills=d.querySelector('.pills');
+(p.badges||[]).forEach(b=>{const s=document.createElement('span');s.className='pill';s.textContent='⚡ '+b;pills.append(s)});
 const ta=d.querySelector('textarea');ta.value=p.dataUrl;ta.onclick=()=>{ta.select()};
 d.querySelector('pre').textContent=p.sourceHtml;
 const row=d.querySelector('.row');
-const bDemo=document.createElement('button');bDemo.textContent='Live demo';bDemo.onclick=()=>{cur=p;frame.srcdoc=p.sourceHtml;mtitle.textContent=p.title+' — live demo';modal.classList.add('open')};
-const bCopy=document.createElement('button');bCopy.textContent='Copy data URL';bCopy.onclick=()=>copyText(p.dataUrl,'copied '+p.bytes+' bytes');
-const bOpen=document.createElement('button');bOpen.className='ghost';bOpen.textContent='Open ship';bOpen.onclick=()=>window.open(p.dataUrl,'_blank');
-row.append(bDemo,bCopy,bOpen);
-d.querySelector('img').onclick=()=>bDemo.onclick();
-grid.appendChild(d)})}).catch(()=>{grid.innerHTML='<p style="text-align:center;opacity:.7">could not load projects.json</p>'});
+const bCopy=document.createElement('button');bCopy.textContent='📋 Copy link';bCopy.onclick=()=>copyText(p.dataUrl,'yummy! link copied 🧸');
+const bDemo=document.createElement('button');bDemo.className='ghost';bDemo.textContent='▶ Live demo';bDemo.onclick=()=>{cur=p;frame.srcdoc=p.sourceHtml;mtitle.textContent=p.title+' — live demo';modal.classList.add('open')};
+const bOpen=document.createElement('button');bOpen.className='ghost';bOpen.textContent='↗ Open toy';bOpen.onclick=()=>window.open(p.dataUrl,'_blank');
+row.append(bCopy,bDemo,bOpen);
+d.querySelector('.shot').onclick=()=>bDemo.onclick();
+grid.appendChild(d)})}).catch(()=>{grid.innerHTML='<p style="text-align:center;opacity:.7">oops, could not load the toybox 😢</p>'});
 document.getElementById('mclose').onclick=()=>{modal.classList.remove('open');frame.removeAttribute('srcdoc')};
-document.getElementById('mcopy').onclick=()=>cur&&copyText(cur.dataUrl,'copied '+cur.bytes+' bytes');
+document.getElementById('mcopy').onclick=()=>cur&&copyText(cur.dataUrl,'yummy! link copied 🧸');
 modal.onclick=e=>{if(e.target===modal){modal.classList.remove('open');frame.removeAttribute('srcdoc')}};
 </script>
