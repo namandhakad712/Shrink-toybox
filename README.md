@@ -47,9 +47,8 @@ projects/<toy>/src.html    💛 the toy's heart — edit this one!
 projects/<toy>/ship.txt    🚀 the squished one-liner — copy-paste this to play
 projects/<toy>/meta.json   🏷️ name tag + description for the shelf
 projects/<toy>/preview.svg 🖼️ picture for the shelf (gallery only, never inside the toy)
-docs/                      🎪 the toy shelf website (GitHub Pages)
-docs/p/<toy>/              🤖 robot copies for the website (made by build.py, don't touch!)
-build.py                   🗜️ the squish machine — shrinks every toy + checks the rules
+docs/                       🎪 the toy shelf template (content baked in by the Action)
+build.py                   🗜️ the squish machine — shrinks every toy + checks the rules + assembles site/
 ```
 
 ---
@@ -63,6 +62,8 @@ build.py                   🗜️ the squish machine — shrinks every toy + ch
 
 ---
 
-## 🎪 toy shelf (GitHub Pages)
+## 🎪 toy shelf (GitHub Pages, free)
 
-Settings → Pages → Deploy from branch → `/docs` — that's it! Plain HTML/CSS/JS, zero dependencies. Each card shows the picture + live demo + **Open / Copy / Source** buttons.
+No committed duplicates, no extra config. Push to GitHub, then Settings → Pages → Source: **GitHub Actions**. The `toybox-pages` workflow runs `python build.py --site site` on every push — it reads the live `projects/*/ship.txt` + `preview.svg` from the outer folder, bakes them into the site (preview image + data URL box + copy button + live demo + view-source per card), and deploys. Zero hosting cost.
+
+Preview locally the same way the Action does: `python build.py`, then serve `site/` (e.g. `python -m http.server -d site`).

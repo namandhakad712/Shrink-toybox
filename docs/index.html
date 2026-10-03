@@ -1,6 +1,7 @@
 <!doctype html>
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
+<link rel=icon href=data:,>
 <title>🧸 shrink-toybox</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b0b12;color:#eee;font:15px/1.5 system-ui,sans-serif}
@@ -12,8 +13,10 @@ header{padding:28px 20px;text-align:center}header h1{margin:0;font-size:28px}hea
 .bar{height:8px;background:#2a2a40;border-radius:4px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:#7c5cff}
 .meta{font-size:12px;opacity:.7}.tags{font-size:12px;opacity:.7;margin:4px 0}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-button,a.btn{background:#7c5cff;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;text-decoration:none}
-button.ghost,a.btn.ghost{background:#2a2a40}
+button{background:#7c5cff;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px}
+button.ghost{background:#2a2a40}
+textarea.url{width:100%;height:54px;background:#0b0b12;color:#9f9;border:1px solid #2a2a40;border-radius:8px;font:11px/1.4 monospace;margin-top:8px;resize:vertical}
+details.src{margin-top:8px}details.src summary{cursor:pointer;font-size:13px;opacity:.8}details.src pre{background:#0b0b12;border:1px solid #2a2a40;border-radius:8px;padding:8px;font-size:11px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:20px}
 #modal.open{display:flex}#box{background:#000;border:1px solid #444;border-radius:12px;width:min(900px,100%);overflow:hidden}
 #box iframe{width:100%;height:60vh;border:0;background:#000}
@@ -25,35 +28,34 @@ button.ghost,a.btn.ghost{background:#2a2a40}
 <p>Every toy is one <code>data:text/html</code> line, ≤3072 bytes, no libs. Click a picture for a live peek 👀, then copy the data URL and paste it in a new tab! 🎉</p>
 </header>
 <div id=grid></div>
-<div id=modal><div id=box><iframe id=frame title="demo"></iframe><div><span id=mtitle style=flex:1></span><button id=mcopy>Copy data URL</button><button id=mopen>Open in tab</button><button id=mclose class=ghost>Close</button></div></div></div>
+<div id=modal><div id=box><iframe id=frame title="demo"></iframe><div><span id=mtitle style=flex:1></span><button id=mcopy>Copy data URL</button><button id=mclose class=ghost>Close</button></div></div></div>
 <div id=toast></div>
 <script>
 const grid=document.getElementById('grid'),toast=document.getElementById('toast'),
 modal=document.getElementById('modal'),frame=document.getElementById('frame'),
-mtitle=document.getElementById('mtitle');let cur=null,curShip='';
+mtitle=document.getElementById('mtitle');let cur=null;
 function say(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',1800)}
-async function shipText(p){const r=await fetch(p.ship);return await r.text()}
-async function copyShip(p){try{curShip=curShip||await shipText(p);await navigator.clipboard.writeText(curShip);say('copied '+p.bytes+' bytes')}catch(e){const t=document.createElement('textarea');t.value=curShip;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();say('copied')}} 
-function openShip(p){shipText(p).then(u=>window.open(u,'_blank'))}
+async function copyText(t,msg){let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{ok=document.execCommand('copy')}catch(_){}a.remove()}say(ok?msg:'copy failed — select the box manually')}
 fetch('projects.json').then(r=>r.json()).then(ps=>{
 grid.innerHTML='';
 ps.forEach(p=>{
 const d=document.createElement('div');d.className='card';
-d.innerHTML=`<img loading=lazy alt="${p.title}"><div class=b><h2></h2><div class=meta></div><div class=bar><i></i></div><p></p><div class=tags></div><div class=row></div></div>`;
-d.querySelector('img').src=p.preview||p.source;d.querySelector('h2').textContent=p.title;
+d.innerHTML=`<img loading=lazy><div class=b><h2></h2><div class=meta></div><div class=bar><i></i></div><p></p><div class=tags></div><textarea class=url readonly></textarea><div class=row></div><details class=src><summary>View source</summary><pre></pre></details></div>`;
+d.querySelector('img').src=p.preview;d.querySelector('img').alt=p.title;
+d.querySelector('h2').textContent=p.title;
 d.querySelector('.meta').textContent=`${p.bytes} / 3072 bytes (${p.percent}%)`;
 d.querySelector('.bar i').style.width=p.percent+'%';d.querySelector('p').textContent=p.description;
 d.querySelector('.tags').textContent=(p.badges||[]).join(' · ');
+const ta=d.querySelector('textarea');ta.value=p.dataUrl;ta.onclick=()=>{ta.select()};
+d.querySelector('pre').textContent=p.sourceHtml;
 const row=d.querySelector('.row');
-const bDemo=document.createElement('button');bDemo.textContent='Live demo';bDemo.onclick=()=>{cur=p;curShip='';frame.src=p.source;mtitle.textContent=p.title+' — live src.html';modal.classList.add('open')};
-const bCopy=document.createElement('button');bCopy.textContent='Copy data URL';bCopy.onclick=()=>{curShip='';copyShip(p)};
-const bOpen=document.createElement('a');bOpen.className='btn ghost';bOpen.textContent='Open ship';bOpen.href='#';bOpen.onclick=e=>{e.preventDefault();openShip(p)};
-const bSrc=document.createElement('a');bSrc.className='btn ghost';bSrc.textContent='Source';bSrc.href=p.source;bSrc.target='_blank';
-row.append(bDemo,bCopy,bOpen,bSrc);
+const bDemo=document.createElement('button');bDemo.textContent='Live demo';bDemo.onclick=()=>{cur=p;frame.srcdoc=p.sourceHtml;mtitle.textContent=p.title+' — live demo';modal.classList.add('open')};
+const bCopy=document.createElement('button');bCopy.textContent='Copy data URL';bCopy.onclick=()=>copyText(p.dataUrl,'copied '+p.bytes+' bytes');
+const bOpen=document.createElement('button');bOpen.className='ghost';bOpen.textContent='Open ship';bOpen.onclick=()=>window.open(p.dataUrl,'_blank');
+row.append(bDemo,bCopy,bOpen);
 d.querySelector('img').onclick=()=>bDemo.onclick();
-grid.appendChild(d)})});
-document.getElementById('mclose').onclick=()=>{modal.classList.remove('open');frame.src='about:blank'};
-document.getElementById('mcopy').onclick=()=>cur&&copyShip(cur);
-document.getElementById('mopen').onclick=()=>cur&&openShip(cur);
-modal.onclick=e=>{if(e.target===modal){modal.classList.remove('open');frame.src='about:blank'}};
+grid.appendChild(d)})}).catch(()=>{grid.innerHTML='<p style="text-align:center;opacity:.7">could not load projects.json</p>'});
+document.getElementById('mclose').onclick=()=>{modal.classList.remove('open');frame.removeAttribute('srcdoc')};
+document.getElementById('mcopy').onclick=()=>cur&&copyText(cur.dataUrl,'copied '+cur.bytes+' bytes');
+modal.onclick=e=>{if(e.target===modal){modal.classList.remove('open');frame.removeAttribute('srcdoc')}};
 </script>

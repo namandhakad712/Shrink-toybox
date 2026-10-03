@@ -1,0 +1,7 @@
+# local build output (assembled Pages site, rebuilt by build.py)
+site/
+# playwright-cli junk (snapshots, screenshots, traces)
+.playwright-cli/
+# node / python noise
+node_modules/
+__pycache__/
