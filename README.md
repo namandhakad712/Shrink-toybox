@@ -1,47 +1,67 @@
-# shrink data-url ships
+# 🧸 shrink-toybox
 
-A mono-repo of tiny web apps, each a **single `data:text/html` file**. No build step to run them, no library, no CDN, no images, no fonts, no APIs.
+> a toybox of tiny universes — every toy fits in **one line**!
 
-Made for [shrink.hackclub.com](https://shrink.hackclub.com/) (YSWS). Started Oct 2026 with `gravity-well`.
+Each toy is a whole game in a single `data:text/html` link. No installs, no libraries, no images, no internet. Just copy, paste, and play! ✨
 
-## SHRINK limits (every ship obeys)
+Made for [shrink.hackclub.com](https://shrink.hackclub.com/) 🌀 · Started Oct 2026 with `gravity-well` 🕳️
 
-- whole app is one `data:text/html,` URI, **≤ 3072 bytes**, one line
-- self-contained: network blocked at runtime — Canvas math + WebAudio only
-- public repo + README + readable source (commit pre-shrink code, not just the minified line)
-- ≥30 min Hackatime per ship, one Hackatime project = one ship
+---
 
-## layout
+## 📏 toybox rules (every toy obeys!)
+
+1. 🧵 **one line only** — the whole toy is one `data:text/html,` link, **≤ 3072 bytes**
+2. 🎒 **packs its own lunch** — no CDN, no images, no fonts, no APIs. Canvas doodles + WebAudio beeps only!
+3. 📖 **show your work** — readable `src.html` lives here, not just the squished one-liner
+4. ⏱️ **built with love + time** — ≥30 min on Hackatime per toy
+
+---
+
+## 🧃 what's inside?
+
+| toy | what does it do? | size |
+|---|---|---|
+| 🕳️ `gravity-well` | feed stars to a hungry black hole! hold to spray, *gulp!* goes the mass counter | 2708 / 3072 bytes |
+
+More toys coming soon… the box is just getting started! 📦
+
+---
+
+## 🎮 how to play
+
+**Option A — copy-paste magic:**
+1. Open `projects/<toy>/ship.txt` and copy the whole line 📋
+2. Open a new tab, paste it where the website address goes, press Enter 🎉
+3. Play! (first click wakes up the sound 🔊)
+
+**Option B — toy shelf:**
+Open the gallery (`docs/index.html` on GitHub Pages) → click a picture for a live peek 👀 → press **Copy data URL** → paste in a new tab!
+
+---
+
+## 🗺️ toybox map
 
 ```text
-projects/<slug>/src.html    readable source — edit this
-projects/<slug>/ship.txt    the ship — one-line data URL, copy-paste ready
-projects/<slug>/meta.json   title/description/badges for gallery
-projects/<slug>/preview.svg thumbnail for gallery (docs only, never in ship)
-docs/                       GitHub Pages gallery (index.html + projects.json)
-docs/p/<slug>/               generated mirror of ship/src/preview for Pages (do not edit, from build.py)
-build.py                    minifies every src.html -> ship.txt, checks limits, regenerates docs/projects.json
+projects/<toy>/src.html    💛 the toy's heart — edit this one!
+projects/<toy>/ship.txt    🚀 the squished one-liner — copy-paste this to play
+projects/<toy>/meta.json   🏷️ name tag + description for the shelf
+projects/<toy>/preview.svg 🖼️ picture for the shelf (gallery only, never inside the toy)
+docs/                      🎪 the toy shelf website (GitHub Pages)
+docs/p/<toy>/              🤖 robot copies for the website (made by build.py, don't touch!)
+build.py                   🗜️ the squish machine — shrinks every toy + checks the rules
 ```
 
-## use a ship
+---
 
-1. Open `projects/<slug>/ship.txt`, copy everything.
-2. New tab → paste in address bar → Enter.
-3. Or browse the gallery: `docs/index.html` (Pages) → click image for live demo → Copy data URL.
+## 🛠️ make a new toy
 
-## add a ship
+1. Copy `projects/gravity-well/` → `projects/<my-toy>/` 📦
+2. Draw + beep in `src.html`, write a cute `meta.json`, doodle a new `preview.svg` 🎨
+3. Run the squish machine: `python build.py` 🗜️ — it squeaks if you're over 3072 bytes or sneaked in internet stuff!
+4. Commit `src.html` + `ship.txt` + `meta.json` + `preview.svg` 💌
 
-1. Copy `projects/gravity-well/` → `projects/<new-slug>/`, edit `src.html` + `meta.json`, replace `preview.svg`.
-2. Run `python build.py` — fails if >3072 bytes or contains `http|src=|href|fetch|url(` etc.
-3. Commit `src.html` + `ship.txt` + `meta.json` + `preview.svg`.
+---
 
-## gallery (GitHub Pages)
+## 🎪 toy shelf (GitHub Pages)
 
-- source: `docs/` folder. Settings → Pages → Deploy from branch → `/docs`.
-- no dependencies, plain HTML/CSS/JS. `index.html` fetches `projects.json`, each card shows preview image + live iframe demo + Open / Copy / Source buttons.
-
-## ships
-
-| slug | what | bytes |
-|---|---|---|
-| `gravity-well` | black-hole feeder toy, canvas + audio + interactive | 2708 / 3072 |
+Settings → Pages → Deploy from branch → `/docs` — that's it! Plain HTML/CSS/JS, zero dependencies. Each card shows the picture + live demo + **Open / Copy / Source** buttons.
