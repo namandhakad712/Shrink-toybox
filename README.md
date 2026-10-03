@@ -1,35 +1,46 @@
-# gravity-well — SHRINK ship
+# shrink data-url ships
 
-A tiny black-hole toy in one line of HTML. Hold mouse to spray stars, gravity spirals them in, each bite flashes the accretion ring and drops a synth blip. Mass counter tracks how much you fed the void. Idle auto-drips stars so it looks alive with no input.
+A mono-repo of tiny web apps, each a **single `data:text/html` file**. No build step to run them, no library, no CDN, no images, no fonts, no APIs.
 
-Built for [shrink.hackclub.com](https://shrink.hackclub.com/): single `data:text/html` URI, self-contained, no network.
+Made for [shrink.hackclub.com](https://shrink.hackclub.com/) (YSWS). Started Oct 2026 with `gravity-well`.
 
-## ready-to-copy files
+## SHRINK limits (every ship obeys)
 
-- `ship.txt` — the ship. One line, `2708 / 3072` bytes. Copy entire contents, paste in a new tab address bar, hit Enter.
-- `src.html` — readable source (what to commit per rules, not just the minified line).
-- `build.py` — minifies `src.html` → `ship.txt` + checks size and banned network patterns.
+- whole app is one `data:text/html,` URI, **≤ 3072 bytes**, one line
+- self-contained: network blocked at runtime — Canvas math + WebAudio only
+- public repo + README + readable source (commit pre-shrink code, not just the minified line)
+- ≥30 min Hackatime per ship, one Hackatime project = one ship
 
-## try it
+## layout
 
-1. Open `ship.txt`, copy all.
-2. Open new tab, paste in address bar, Enter.
-3. Hold mouse / touch to feed. First click enables audio.
-
-## rebuild
-
-```sh
-python build.py
+```text
+projects/<slug>/src.html    readable source — edit this
+projects/<slug>/ship.txt    the ship — one-line data URL, copy-paste ready
+projects/<slug>/meta.json   title/description/badges for gallery
+projects/<slug>/preview.svg thumbnail for gallery (docs only, never in ship)
+docs/                       GitHub Pages gallery (index.html + projects.json)
+build.py                    minifies every src.html -> ship.txt, checks limits, regenerates docs/projects.json
 ```
 
-Checks: one line, ≤3072 bytes, no `http|src=|href|fetch|url(` etc.
+## use a ship
 
-## checklist
+1. Open `projects/<slug>/ship.txt`, copy everything.
+2. New tab → paste in address bar → Enter.
+3. Or browse the gallery: `docs/index.html` (Pages) → click image for live demo → Copy data URL.
 
-1. one line 3072 max — `ship.txt`, 2708 bytes, no newlines.
-2. self-contained — no CDN/img/font/API. Canvas + WebAudio only.
-3. public repo + README — this repo.
-4. readable source — `src.html`.
-5. tracked hours — log ≥30min on Hackatime in one project per ship.
+## add a ship
 
-Badges aimed: `<canvas>`, web audio, interactive.
+1. Copy `projects/gravity-well/` → `projects/<new-slug>/`, edit `src.html` + `meta.json`, replace `preview.svg`.
+2. Run `python build.py` — fails if >3072 bytes or contains `http|src=|href|fetch|url(` etc.
+3. Commit `src.html` + `ship.txt` + `meta.json` + `preview.svg`.
+
+## gallery (GitHub Pages)
+
+- source: `docs/` folder. Settings → Pages → Deploy from branch → `/docs`.
+- no dependencies, plain HTML/CSS/JS. `index.html` fetches `projects.json`, each card shows preview image + live iframe demo + Open / Copy / Source buttons.
+
+## ships
+
+| slug | what | bytes |
+|---|---|---|
+| `gravity-well` | black-hole feeder toy, canvas + audio + interactive | 2708 / 3072 |

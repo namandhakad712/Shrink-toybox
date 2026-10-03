@@ -1,0 +1,17 @@
+[
+ {
+  "slug": "gravity-well",
+  "title": "Gravity Well",
+  "description": "Hold to spray stars into a black hole. Each bite flashes the ring and drops a synth blip.",
+  "badges": [
+   "canvas",
+   "audio",
+   "interactive"
+  ],
+  "bytes": 2708,
+  "percent": 88,
+  "ship": "p/gravity-well/ship.txt",
+  "source": "p/gravity-well/src.html",
+  "preview": "p/gravity-well/preview.svg"
+ }
+]
