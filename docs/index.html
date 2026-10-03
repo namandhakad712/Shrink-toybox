@@ -27,7 +27,6 @@ body{
 }
 ::selection{background:var(--pink);color:#000}
 .wrap{max-width:1120px;margin:auto;padding:0 20px}
-/* ---------- hero ---------- */
 .hero{text-align:center;padding:64px 20px 10px;position:relative}
 .kicker{display:inline-block;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
   color:#000;background:var(--lime);border-radius:999px;padding:6px 16px;transform:rotate(-3deg);
@@ -42,7 +41,6 @@ body{
 .stick:nth-child(2n){animation-delay:-1.3s;transform:rotate(2deg)}
 .stick:nth-child(3n){animation-delay:-2.6s}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -7px}}
-/* ---------- noob steps ---------- */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:30px auto 8px;max-width:1120px;padding:0 20px}
 .step{background:var(--card);border:2px solid var(--line);border-radius:var(--r);padding:16px 18px;
   box-shadow:5px 5px 0 #000;position:relative}
@@ -52,13 +50,11 @@ body{
 .step h3{margin:6px 0 4px;font-size:16px}
 .step p{margin:0;color:var(--dim);font-size:14px}
 .step code{background:#0b0b12;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:12.5px;color:var(--lime)}
-/* ---------- marquee ---------- */
 .marquee{overflow:hidden;white-space:nowrap;border-block:2px solid var(--line);margin:26px 0 0;
   background:linear-gradient(90deg,var(--purple),#a855f7)}
 .marquee span{display:inline-block;padding:9px 0;font-weight:900;letter-spacing:2px;font-size:13px;color:#fff;
   animation:slide 18s linear infinite}
 @keyframes slide{to{transform:translateX(-50%)}}
-/* ---------- cards ---------- */
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;padding:28px 20px 60px;max-width:1120px;margin:auto}
 .card{background:var(--card);border:2px solid var(--line);border-radius:22px;overflow:hidden;
   box-shadow:7px 7px 0 #000;transition:transform .18s ease}
@@ -91,7 +87,6 @@ button.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line
 details.src{margin-top:10px}details.src summary{cursor:pointer;font-size:13.5px;font-weight:800;color:var(--cyan)}
 details.src pre{background:#0b0b12;border:1.5px solid var(--line);border-radius:12px;padding:10px;font-size:11px;
   max-height:230px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:#d9d4f5}
-/* ---------- modal + toast + footer ---------- */
 #modal{position:fixed;inset:0;background:#060514e6;display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
 #modal.open{display:flex}
 #box{background:#000;border:2px solid var(--line);border-radius:20px;width:min(920px,100%);overflow:hidden;box-shadow:8px 8px 0 #000}

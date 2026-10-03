@@ -1,15 +1,7 @@
-"""Verify ships + assemble the Pages site (gitignored) from docs/ template.
-
-Official per-toy build is `node build.mjs` inside each projects/<slug>/
-(src/index.html -> dist/uri.txt, committed). This script only verifies and
-assembles — it never minifies, so what reviewers read is what ships.
-
-Usage:
-  python build.py                verify all + assemble ./site/
-  python build.py gravity-well   verify one toy (+ site)
-  python build.py --site out     assemble site into ./out/
-"""
-import json, re, shutil, sys
+import json
+import re
+import shutil
+import sys
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -17,11 +9,15 @@ ROOT = Path(__file__).parent
 MAX = 3072
 BAD = ["http", "src=", "href", "fetch(", "XMLHttpRequest", "import(", "@import", "url("]
 
-def js_syntax_ok(js: str, label: str) -> bool:
-    import subprocess, tempfile, os
+def toy_dirs():
+    return sorted([d for d in ROOT.iterdir() if d.is_dir() and (d / "src" / "index.html").exists()])
+
+def js_ok(js, label):
+    import subprocess
+    import tempfile
+    import os
     node = shutil.which("node")
     if not node:
-        print(f"{label}: node missing, syntax check skipped")
         return True
     with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as f:
         f.write(js)
@@ -29,37 +25,29 @@ def js_syntax_ok(js: str, label: str) -> bool:
     r = subprocess.run([node, "--check", path], capture_output=True, text=True)
     os.unlink(path)
     if r.returncode != 0:
-        print(f"{label}: JS SYNTAX ERROR:\n" + r.stderr[:1500])
+        print(label + " broken js:\n" + r.stderr[:1500])
         return False
     return True
 
-def verify(d: Path) -> str | None:
-    """Returns data URL if the toy passes all checks, else None."""
+def verify(d):
     src = d / "src" / "index.html"
-    uri_f = d / "dist" / "uri.txt"
-    if not src.exists():
-        print(f"SKIP {d.name}: no src/index.html"); return None
-    if not uri_f.exists():
-        print(f"FAIL {d.name}: no dist/uri.txt — run `node build.mjs` in projects/{d.name}"); return None
-    if src.stat().st_mtime > uri_f.stat().st_mtime:
-        print(f"FAIL {d.name}: dist/uri.txt older than src — rerun `node build.mjs`"); return None
-    uri = uri_f.read_text(encoding="utf-8").strip()
-    nbytes = len(uri.encode("utf-8"))
+    uri_file = d / "dist" / "uri.txt"
+    if not uri_file.exists():
+        print("FAIL " + d.name + ": run node build.mjs inside " + d.name)
+        return None
+    if src.stat().st_mtime > uri_file.stat().st_mtime:
+        print("FAIL " + d.name + ": dist is old, rerun node build.mjs")
+        return None
+    uri = uri_file.read_text(encoding="utf-8").strip()
+    size = len(uri.encode("utf-8"))
     html = unquote(uri.split(",", 1)[1]) if uri.startswith("data:text/html,") else ""
     found = [b for b in BAD if b in html]
-    mjs = re.search(r"<script>(.*)</script>", html, re.S)
-    ok = (
-        uri.startswith("data:text/html,")
-        and nbytes <= MAX
-        and "\n" not in uri
-        and not found
-        and js_syntax_ok(mjs.group(1) if mjs else "", d.name)
-    )
-    print(f"{d.name}: {nbytes}/{MAX} {'OK' if ok else 'FAIL'} banned={found or 'none'}")
+    m = re.search(r"<script>(.*)</script>", html, re.S)
+    ok = uri.startswith("data:text/html,") and size <= MAX and "\n" not in uri and not found and js_ok(m.group(1) if m else "", d.name)
+    print(d.name + ": " + str(size) + "/" + str(MAX) + " " + ("OK" if ok else "FAIL"))
     return uri if ok else None
 
-def build_site(good: dict, dest: Path):
-    """Assemble deployable site from docs/ template + live projects/ content."""
+def build_site(good, dest):
     if dest.exists():
         shutil.rmtree(dest)
     (dest / "p").mkdir(parents=True)
@@ -69,7 +57,7 @@ def build_site(good: dict, dest: Path):
             shutil.copy(src, dest / f)
     entries = []
     for slug, uri in good.items():
-        d = ROOT / "projects" / slug
+        d = ROOT / slug
         meta = {}
         mf = d / "meta.json"
         if mf.exists():
@@ -79,21 +67,22 @@ def build_site(good: dict, dest: Path):
             if (d / cand).exists():
                 (dest / "p" / slug).mkdir(parents=True, exist_ok=True)
                 shutil.copy(d / cand, dest / "p" / slug / cand)
-                preview = f"p/{slug}/{cand}"
+                preview = "p/" + slug + "/" + cand
                 break
+        size = len(uri.encode("utf-8"))
         entries.append({
             "slug": slug,
             "title": meta.get("title", slug),
             "description": meta.get("description", ""),
             "badges": meta.get("badges", []),
-            "bytes": len(uri.encode("utf-8")),
-            "percent": round(len(uri.encode("utf-8")) / MAX * 100),
+            "bytes": size,
+            "percent": round(size / MAX * 100),
             "dataUrl": uri,
             "sourceHtml": (d / "src" / "index.html").read_text(encoding="utf-8"),
-            "preview": preview,
+            "preview": preview
         })
     (dest / "projects.json").write_text(json.dumps(entries, indent=1), encoding="utf-8")
-    print(f"site -> {dest} ({len(entries)} projects)")
+    print("site -> " + str(dest) + " (" + str(len(entries)) + " toys)")
 
 def main(args):
     site = "site"
@@ -106,16 +95,16 @@ def main(args):
         else:
             slugs.append(args[i])
             i += 1
-    slugs = [s for s in slugs if (ROOT / "projects" / s).is_dir()]
-    all_dirs = sorted([d for d in (ROOT / "projects").iterdir() if d.is_dir()]) if (ROOT / "projects").exists() else []
-    projs = [ROOT / "projects" / s for s in slugs] if slugs else all_dirs
+    toys = toy_dirs()
+    want = [ROOT / s for s in slugs if (ROOT / s).is_dir()] if slugs else toys
     checked = {}
-    for d in all_dirs:
+    for d in toys:
         uri = verify(d)
         if uri:
             checked[d.name] = uri
     build_site(checked, ROOT / site)
-    sys.exit(0 if all(n in checked for n in [d.name for d in projs]) and projs else 1)
+    names = [d.name for d in want]
+    sys.exit(0 if names and all(n in checked for n in names) else 1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
