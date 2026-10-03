@@ -1,11 +1,9 @@
-// Turns src/index.html into one data URI. Run: node build.mjs
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { minify } from "terser";
 
 const LIMIT = 3072;
 const src = readFileSync("src/index.html", "utf8");
 
-// Squeeze whitespace in shaders written as glsl`...` (terser leaves strings alone).
 function glsl(code) {
   return code
     .replace(/\/\/.*|\/\*[\s\S]*?\*\//g, "")
@@ -31,7 +29,6 @@ for (const part of src.split(/(<script>[\s\S]*?<\/script>|<style>[\s\S]*?<\/styl
   }
 }
 
-// Only these three break a data URI. Encoding anything else costs bytes for nothing.
 const uri = "data:text/html," + html.replace(/%/g, "%25").replace(/#/g, "%23").replace(/\n/g, "%0A");
 
 mkdirSync("dist", { recursive: true });

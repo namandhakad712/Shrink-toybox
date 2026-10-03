@@ -1,63 +1,112 @@
 <body style=margin:0;overflow:hidden;background:#000>
 <canvas id=c></canvas>
-<span id=o style=position:fixed;top:10px;left:12px;color:#fff;font:12px monospace;opacity:.7>hold to feed stars - mass <b id=m>0</b></span>
+<span style=position:fixed;top:10px;left:12px;color:#fff;font:12px monospace;opacity:.7>hold to feed stars - mass <b id=score>0</b></span>
 <script>
-// GRAVITY WELL - feed the void. hold mouse to spray stars, black hole eats them.
-X = c.getContext('2d')
-W = c.width = innerWidth
-H = c.height = innerHeight
-BX = W / 2; BY = H / 2  // black hole pos
-S = []                  // stars: [x,y,vx,vy]
-M = 0                   // mass eaten
-F = 0                   // eat flash 0..1
-t = 0                   // time for hue cycle
-mx = W / 2; my = 0; D = 0
-A = 0                   // AudioContext (lazy)
-onresize = () => { W = c.width = innerWidth; H = c.height = innerHeight; BX = W / 2; BY = H / 2 }
-onpointermove = e => { mx = e.clientX; my = e.clientY }
-onpointerdown = e => { mx = e.clientX; my = e.clientY; D = 1; if (!A) A = new AudioContext }
-onpointerup = () => D = 0
-// pitch-drop blip on eat: f0 -> f1
-function B(f0, f1) {
-  o = A.createOscillator(); g = A.createGain(); n = A.currentTime
-  o.connect(g).connect(A.destination)
-  o.frequency.setValueAtTime(f0, n)
-  o.frequency.exponentialRampToValueAtTime(f1, n + .25)
-  g.gain.setValueAtTime(.15, n)
-  g.gain.exponentialRampToValueAtTime(.001, n + .25)
-  o.start(n); o.stop(n + .26)
+let ctx = c.getContext('2d')
+let holeX = innerWidth / 2
+let holeY = innerHeight / 2
+let stars = []
+let eaten = 0
+let flash = 0
+let time = 0
+let mouseX = holeX
+let mouseY = 0
+let holding = false
+let sound = null
+
+function fit() {
+  c.width = innerWidth
+  c.height = innerHeight
+  holeX = c.width / 2
+  holeY = c.height / 2
 }
-function L() {
-  t++
-  // trails
-  X.fillStyle = 'rgba(0,0,0,.28)'; X.fillRect(0, 0, W, H)
-  // spray 3 stars per frame while holding (also auto-drip 1 so idle looks alive)
-  for (k = D ? 3 : 1; k--;) S.push([D ? mx : Math.random() * W, D ? my : 0, (Math.random() - .5) * 4, Math.random() * 2])
-  // glow accretion ring (hue cycles, flashes on eat)
-  F *= .94
-  X.fillStyle = 'hsl(' + (t * 2 % 360) + ',100%,60%)'
-  X.beginPath(); X.arc(BX, BY, 26 + F * 22, 0, 7); X.fill()
-  // physics + draw stars
-  for (i = S.length; i--;) {
-    s = S[i]
-    dx = BX - s[0]; dy = BY - s[1]; d = Math.hypot(dx, dy) + 1
-    p = 2600 / (d * d + 400)          // gravity pull
-    s[2] += dx / d * p; s[3] += dy / d * p
-    s[2] *= .985; s[3] *= .985        // slight drag -> spiral
-    s[0] += s[2]; s[1] += s[3]
-    if (d < 16) {                     // eaten
-      S.splice(i, 1); M++; F = 1
-      m.textContent = M
-      if (A) B(700 + Math.random() * 300, 50)
+fit()
+onresize = fit
+
+onpointermove = e => {
+  mouseX = e.clientX
+  mouseY = e.clientY
+}
+onpointerdown = e => {
+  mouseX = e.clientX
+  mouseY = e.clientY
+  holding = true
+  if (!sound) sound = new AudioContext()
+}
+onpointerup = () => holding = false
+
+function gulp(high, low) {
+  let osc = sound.createOscillator()
+  let gain = sound.createGain()
+  let now = sound.currentTime
+  osc.connect(gain)
+  gain.connect(sound.destination)
+  osc.frequency.setValueAtTime(high, now)
+  osc.frequency.exponentialRampToValueAtTime(low, now + .25)
+  gain.gain.setValueAtTime(.15, now)
+  gain.gain.exponentialRampToValueAtTime(.001, now + .25)
+  osc.start(now)
+  osc.stop(now + .26)
+}
+
+function tick() {
+  time++
+  ctx.fillStyle = 'rgba(0,0,0,.28)'
+  ctx.fillRect(0, 0, c.width, c.height)
+
+  let drops = holding ? 3 : 1
+  for (let k = 0; k < drops; k++) {
+    stars.push([
+      holding ? mouseX : Math.random() * c.width,
+      holding ? mouseY : 0,
+      (Math.random() - .5) * 4,
+      Math.random() * 2
+    ])
+  }
+
+  flash *= .94
+  ctx.fillStyle = 'hsl(' + (time * 2 % 360) + ',100%,60%)'
+  ctx.beginPath()
+  ctx.arc(holeX, holeY, 26 + flash * 22, 0, 7)
+  ctx.fill()
+
+  for (let i = stars.length - 1; i >= 0; i--) {
+    let s = stars[i]
+    let dx = holeX - s[0]
+    let dy = holeY - s[1]
+    let d = Math.hypot(dx, dy) + 1
+    let pull = 2600 / (d * d + 400)
+    s[2] += dx / d * pull
+    s[3] += dy / d * pull
+    s[2] *= .985
+    s[3] *= .985
+    s[0] += s[2]
+    s[1] += s[3]
+    if (d < 16) {
+      stars.splice(i, 1)
+      eaten++
+      flash = 1
+      score.textContent = eaten
+      if (sound) gulp(700 + Math.random() * 300, 50)
       continue
     }
-    if (s[0] < -50 || s[0] > W + 50 || s[1] < -50 || s[1] > H + 50) { S.splice(i, 1); continue }
-    X.fillStyle = '#fff'; X.fillRect(s[0], s[1], 2, 2)
+    if (s[0] < -50 || s[0] > c.width + 50 || s[1] < -50 || s[1] > c.height + 50) {
+      stars.splice(i, 1)
+      continue
+    }
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(s[0], s[1], 2, 2)
   }
-  // black hole body + rim
-  X.fillStyle = '#000'; X.beginPath(); X.arc(BX, BY, 18, 0, 7); X.fill()
-  X.strokeStyle = '#fff'; X.beginPath(); X.arc(BX, BY, 18, 0, 7); X.stroke()
-  requestAnimationFrame(L)
+
+  ctx.fillStyle = '#000'
+  ctx.beginPath()
+  ctx.arc(holeX, holeY, 18, 0, 7)
+  ctx.fill()
+  ctx.strokeStyle = '#fff'
+  ctx.beginPath()
+  ctx.arc(holeX, holeY, 18, 0, 7)
+  ctx.stroke()
+  requestAnimationFrame(tick)
 }
-L()
+tick()
 </script>

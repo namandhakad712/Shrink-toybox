@@ -1,60 +1,88 @@
 <body style=margin:0;overflow:hidden;background:#000>
 <canvas id=c></canvas>
-<span id=o style=position:fixed;top:10px;left:12px;color:#fff;font:12px monospace;opacity:.7>steer with mouse - hold = boost - <b id=m>0</b> ly</span>
+<span style=position:fixed;top:10px;left:12px;color:#fff;font:12px monospace;opacity:.7>steer with mouse - hold = boost - <b id=score>0</b> ly</span>
 <script>
-// WARP TUNNEL - steer a hyperspace tunnel. hold to boost, engine hum rises.
-X = c.getContext('2d')
-W = c.width = innerWidth
-H = c.height = innerHeight
-N = 30                 // rings
-K = 10                 // spokes
-G = []                 // rings: [z, spin, hue]
-for (i = 0; i < N; i++) G.push([i / N, Math.random() * 6.28])
-px = 0; py = 0; D = 0
-v = 0                  // speed
-M = 0                  // distance
-t = 0
-A = 0; o = 0           // audio + engine osc
-onresize = () => { W = c.width = innerWidth; H = c.height = innerHeight }
-onpointermove = e => { px = e.clientX / W - .5; py = e.clientY / H - .5 }
+let ctx = c.getContext('2d')
+let rings = 30
+let spokes = 10
+let tunnel = []
+for (let i = 0; i < rings; i++) {
+  tunnel.push([i / rings, Math.random() * 6.28])
+}
+let steerX = 0
+let steerY = 0
+let boosting = false
+let speed = 0
+let dist = 0
+let time = 0
+let sound = null
+let engine = null
+
+function fit() {
+  c.width = innerWidth
+  c.height = innerHeight
+}
+fit()
+onresize = fit
+
+onpointermove = e => {
+  steerX = e.clientX / c.width - .5
+  steerY = e.clientY / c.height - .5
+}
 onpointerdown = () => {
-  D = 1
-  if (!A) {
-    A = new AudioContext
-    o = A.createOscillator(); g = A.createGain()
-    o.type = 'sawtooth'; o.frequency.value = 60; g.gain.value = .04
-    o.connect(g).connect(A.destination); o.start()
+  boosting = true
+  if (!sound) {
+    sound = new AudioContext()
+    engine = sound.createOscillator()
+    let gain = sound.createGain()
+    engine.type = 'sawtooth'
+    engine.frequency.value = 60
+    gain.gain.value = .04
+    engine.connect(gain)
+    gain.connect(sound.destination)
+    engine.start()
   }
 }
-onpointerup = () => D = 0
-// point on ring r at spoke k, projected by depth z + steer offset
-function P(r, k, z, out) {
-  a = r + k * 6.283 / K + t * .02
-  s = 1 / (z + .15)                       // perspective
-  out[0] = W / 2 + (Math.cos(a) * 220 - px * 300 * z) * s
-  out[1] = H / 2 + (Math.sin(a) * 220 - py * 300 * z) * s
+onpointerup = () => boosting = false
+
+let p1 = [0, 0]
+let p2 = [0, 0]
+function spot(spin, n, depth, out) {
+  let a = spin + n * 6.283 / spokes + time * .02
+  let s = 1 / (depth + .15)
+  out[0] = c.width / 2 + (Math.cos(a) * 220 - steerX * 300 * depth) * s
+  out[1] = c.height / 2 + (Math.sin(a) * 220 - steerY * 300 * depth) * s
 }
-u = [0, 0]; q = [0, 0]
-function L() {
-  t++
-  v += ((D ? .05 : .012) - v) * .05      // boost easing
-  M += v * 10; m.textContent = M | 0
-  if (o) o.frequency.setTargetAtTime(50 + v * 4000, A.currentTime, .05)
-  X.fillStyle = 'rgba(0,0,10,.35)'; X.fillRect(0, 0, W, H)
-  for (i = 0; i < N; i++) {
-    r = G[i]; r[0] -= v                  // fly forward
-    if (r[0] <= 0) { r[0] += 1; r[1] = Math.random() * 6.28 }
-    c = 'hsl(' + ((t * 3 + i * 9) % 360) + ',100%,60%)'
-    X.strokeStyle = c
-    for (k = 0; k < K; k++) {
-      P(r[1], k, r[0], u)
-      j = (i + 1) % N; P(G[j][1], k, G[j][0], q)
-      X.beginPath(); X.moveTo(u[0], u[1]); X.lineTo(q[0], q[1]); X.stroke()
+
+function tick() {
+  time++
+  speed += ((boosting ? .05 : .012) - speed) * .05
+  dist += speed * 10
+  score.textContent = Math.floor(dist)
+  if (engine) engine.frequency.setTargetAtTime(50 + speed * 4000, sound.currentTime, .05)
+  ctx.fillStyle = 'rgba(0,0,10,.35)'
+  ctx.fillRect(0, 0, c.width, c.height)
+  for (let i = 0; i < rings; i++) {
+    let r = tunnel[i]
+    r[0] -= speed
+    if (r[0] <= 0) {
+      r[0] += 1
+      r[1] = Math.random() * 6.28
+    }
+    ctx.strokeStyle = 'hsl(' + ((time * 3 + i * 9) % 360) + ',100%,60%)'
+    for (let k = 0; k < spokes; k++) {
+      spot(r[1], k, r[0], p1)
+      let next = tunnel[(i + 1) % rings]
+      spot(next[1], k, next[0], p2)
+      ctx.beginPath()
+      ctx.moveTo(p1[0], p1[1])
+      ctx.lineTo(p2[0], p2[1])
+      ctx.stroke()
     }
   }
-  // ship nose
-  X.fillStyle = '#fff'; X.fillRect(W / 2 - 2, H / 2 - 2, 4, 4)
-  requestAnimationFrame(L)
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(c.width / 2 - 2, c.height / 2 - 2, 4, 4)
+  requestAnimationFrame(tick)
 }
-L()
+tick()
 </script>
