@@ -22,6 +22,7 @@ Made for [shrink.hackclub.com](https://shrink.hackclub.com/) 🌀 · Started Oct
 | toy | what does it do? | size |
 |---|---|---|
 | 🕳️ `gravity-well` | feed stars to a hungry black hole! hold to spray, *gulp!* goes the mass counter | 2708 / 3072 bytes |
+| 🌀 `warp-tunnel` | steer a hyperspace tunnel! hold to boost, engine hum rises with speed | 2465 / 3072 bytes |
 
 More toys coming soon… the box is just getting started! 📦
 

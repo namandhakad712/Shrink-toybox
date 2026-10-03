@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+<rect width="640" height="360" fill="#05050f"/>
+<g fill="none" stroke-width="5" opacity="0.9">
+<ellipse cx="320" cy="180" rx="250" ry="140" stroke="#7c5cff"/>
+<ellipse cx="320" cy="180" rx="190" ry="105" stroke="#0ff"/>
+<ellipse cx="320" cy="180" rx="130" ry="72" stroke="#f0f"/>
+<ellipse cx="320" cy="180" rx="75" ry="42" stroke="#fff"/>
+</g>
+<circle cx="320" cy="180" r="10" fill="#fff"/>
+<text x="320" y="322" text-anchor="middle" font-family="monospace" font-size="22" fill="#fff">WARP TUNNEL</text>
+</svg>

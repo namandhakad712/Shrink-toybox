@@ -1,0 +1,60 @@
+<body style=margin:0;overflow:hidden;background:#000>
+<canvas id=c></canvas>
+<span id=o style=position:fixed;top:10px;left:12px;color:#fff;font:12px monospace;opacity:.7>steer with mouse - hold = boost - <b id=m>0</b> ly</span>
+<script>
+// WARP TUNNEL - steer a hyperspace tunnel. hold to boost, engine hum rises.
+X = c.getContext('2d')
+W = c.width = innerWidth
+H = c.height = innerHeight
+N = 30                 // rings
+K = 10                 // spokes
+G = []                 // rings: [z, spin, hue]
+for (i = 0; i < N; i++) G.push([i / N, Math.random() * 6.28])
+px = 0; py = 0; D = 0
+v = 0                  // speed
+M = 0                  // distance
+t = 0
+A = 0; o = 0           // audio + engine osc
+onresize = () => { W = c.width = innerWidth; H = c.height = innerHeight }
+onpointermove = e => { px = e.clientX / W - .5; py = e.clientY / H - .5 }
+onpointerdown = () => {
+  D = 1
+  if (!A) {
+    A = new AudioContext
+    o = A.createOscillator(); g = A.createGain()
+    o.type = 'sawtooth'; o.frequency.value = 60; g.gain.value = .04
+    o.connect(g).connect(A.destination); o.start()
+  }
+}
+onpointerup = () => D = 0
+// point on ring r at spoke k, projected by depth z + steer offset
+function P(r, k, z, out) {
+  a = r + k * 6.283 / K + t * .02
+  s = 1 / (z + .15)                       // perspective
+  out[0] = W / 2 + (Math.cos(a) * 220 - px * 300 * z) * s
+  out[1] = H / 2 + (Math.sin(a) * 220 - py * 300 * z) * s
+}
+u = [0, 0]; q = [0, 0]
+function L() {
+  t++
+  v += ((D ? .05 : .012) - v) * .05      // boost easing
+  M += v * 10; m.textContent = M | 0
+  if (o) o.frequency.setTargetAtTime(50 + v * 4000, A.currentTime, .05)
+  X.fillStyle = 'rgba(0,0,10,.35)'; X.fillRect(0, 0, W, H)
+  for (i = 0; i < N; i++) {
+    r = G[i]; r[0] -= v                  // fly forward
+    if (r[0] <= 0) { r[0] += 1; r[1] = Math.random() * 6.28 }
+    c = 'hsl(' + ((t * 3 + i * 9) % 360) + ',100%,60%)'
+    X.strokeStyle = c
+    for (k = 0; k < K; k++) {
+      P(r[1], k, r[0], u)
+      j = (i + 1) % N; P(G[j][1], k, G[j][0], q)
+      X.beginPath(); X.moveTo(u[0], u[1]); X.lineTo(q[0], q[1]); X.stroke()
+    }
+  }
+  // ship nose
+  X.fillStyle = '#fff'; X.fillRect(W / 2 - 2, H / 2 - 2, 4, 4)
+  requestAnimationFrame(L)
+}
+L()
+</script>
