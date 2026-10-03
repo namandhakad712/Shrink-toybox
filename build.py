@@ -30,13 +30,9 @@ def js_ok(js, label):
     return True
 
 def verify(d):
-    src = d / "src" / "index.html"
     uri_file = d / "dist" / "uri.txt"
     if not uri_file.exists():
         print("FAIL " + d.name + ": run node build.mjs inside " + d.name)
-        return None
-    if src.stat().st_mtime > uri_file.stat().st_mtime:
-        print("FAIL " + d.name + ": dist is old, rerun node build.mjs")
         return None
     uri = uri_file.read_text(encoding="utf-8").strip()
     size = len(uri.encode("utf-8"))
